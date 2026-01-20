@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ping Tool</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        input { width: 300px; padding: 10px; margin: 10px 0; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #results { margin-top: 20px; font-family: monospace; white-space: pre-wrap; }
+        .loading { color: #28a745; }
+        .error { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Ping Tool</h1>
+    <input type="text" id="host" placeholder="IP или домен (например: 8.8.8.8 или google.com)" value="google.com">
+    <br>
+    <button onclick="pingHost()">🚀 Пинг</button>
+    <button onclick="stopPing()">⏹ Стоп</button>
+    
+    <div id="results"></div>
+
+    <script>
+        let ws = null;
+        let pingInterval = null;
+
+        function connectWebSocket() {
+            ws = new WebSocket('ws://localhost:3000');
+            ws.onopen = () => console.log('WS connected');
+            ws.onmessage = (event) => {
+                document.getElementById('results').textContent += event.data + '\n';
+                document.getElementById('results').scrollTop = document.getElementById('results').scrollHeight;
+            };
+            ws.onclose = () => console.log('WS closed');
+        }
+
+        function pingHost() {
+            const host = document.getElementById('host').value.trim();
+            if (!host) return alert('Введите IP или домен!');
+            
+            document.getElementById('results').textContent = `Пинг ${host}...\n`;
+            connectWebSocket();
+            
+            // Отправляем команду пинга каждую секунду
+            pingInterval = setInterval(() => {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(`ping ${host}`);
+                }
+            }, 1000);
+        }
+
+        function stopPing() {
+            if (pingInterval) clearInterval(pingInterval);
+            if (ws) ws.send('stop');
+            document.getElementById('results').textContent += '\n🛑 Пинг остановлен\n';
+        }
+
+        // Автозапуск WebSocket
+        connectWebSocket();
+    </script>
+</body>
+</html>
