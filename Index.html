@@ -1,3 +1,4 @@
+// сделайна фоне байты 0/1 а еще как-нибудь убери уродство
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -44,7 +45,6 @@
             document.getElementById('results').textContent = `Ddos ${host} каждые 10 мс...\n`;
             connectWebSocket();
             
-            // Отправляем команду пинга каждую секунду
             pingInterval = setInterval(() => {
                 if (ws && ws.readyState === WebSocket.OPEN) {
                     ws.send(`ping ${host}`);
@@ -57,8 +57,7 @@
             if (ws) ws.send('stop');
             document.getElementById('results').textContent += '\n надоело?\n';
         }
-
-        // Автозапуск WebSocket
+        
         connectWebSocket();
     </script>
 </body>
